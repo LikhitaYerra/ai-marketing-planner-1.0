@@ -140,6 +140,18 @@ class MarketingPipeline:
         :param days_back: How many days back to search
         :return: Dictionary with news insights
         """
+        # Check if NewsAPI is available
+        if not self.newsapi:
+            print("NewsAPI client not available - returning empty results")
+            return {
+                'total_articles': 0,
+                'trending_topics': [],
+                'recent_developments': [],
+                'key_sources': [],
+                'sample_headlines': [],
+                'citations': []
+            }
+        
         try:
             from datetime import datetime, timedelta
             
@@ -149,10 +161,12 @@ class MarketingPipeline:
                 search_terms.extend(keywords[:3])  # Add top 3 keywords
             
             query = ' OR '.join([f'"{term}"' for term in search_terms])
+            print(f"[DEBUG] NewsAPI query: {query}")
             
             # Calculate date range
             to_date = datetime.now()
             from_date = to_date - timedelta(days=days_back)
+            print(f"[DEBUG] Date range: {from_date.strftime('%Y-%m-%d')} to {to_date.strftime('%Y-%m-%d')}")
             
             # Fetch news
             news_response = self.newsapi.get_everything(
@@ -163,6 +177,10 @@ class MarketingPipeline:
                 to=to_date.strftime('%Y-%m-%d'),
                 page_size=10  # Limit to top 10 articles
             )
+            
+            print(f"[DEBUG] NewsAPI response status: {news_response.get('status', 'Unknown')}")
+            print(f"[DEBUG] Total results: {news_response.get('totalResults', 0)}")
+            print(f"[DEBUG] Articles returned: {len(news_response.get('articles', []))}")
             
             if news_response['status'] == 'ok' and news_response['articles']:
                 articles = news_response['articles']
@@ -201,12 +219,18 @@ class MarketingPipeline:
                     if article.get('description')
                 ]
                 
+                print(f"[DEBUG] Successfully processed {len(articles)} articles")
                 return news_insights
+            else:
+                print(f"[DEBUG] No articles found - status: {news_response.get('status')}, articles: {len(news_response.get('articles', []))}")
             
         except Exception as e:
-            print(f"NewsAPI fetch failed: {e}")
+            print(f"[ERROR] NewsAPI fetch failed: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Return empty insights if failed
+        print("[DEBUG] Returning empty news insights")
         return {
             'total_articles': 0,
             'trending_topics': [],

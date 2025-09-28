@@ -322,19 +322,41 @@ scheduler.start()
 
 def init_api_clients():
     """Initialize OpenAI and NewsAPI clients."""
+    client = None
+    newsapi = None
+    
+    # Initialize OpenAI (required)
     try:
-        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        newsapi = NewsApiClient(api_key=os.getenv('NEWS_API_KEY'))
-        return client, newsapi
+        openai_key = os.getenv('OPENAI_API_KEY')
+        if openai_key:
+            client = OpenAI(api_key=openai_key)
+        else:
+            print("[ERROR] OpenAI API key not found")
     except Exception as e:
-        logger.error(f"Failed to initialize API clients: {e}")
-        return None, None
+        print(f"[ERROR] Failed to initialize OpenAI client: {e}")
+    
+    # Initialize NewsAPI (optional)
+    try:
+        news_key = os.getenv('NEWS_API_KEY')
+        if news_key:
+            newsapi = NewsApiClient(api_key=news_key)
+            print("[INFO] NewsAPI client initialized successfully")
+        else:
+            print("[WARNING] NewsAPI key not found - news research will be limited")
+    except Exception as e:
+        print(f"[WARNING] Failed to initialize NewsAPI client: {e}")
+    
+    return client, newsapi
 
 # Initialize API clients
 client, newsapi = init_api_clients()
-if not client or not newsapi:
-    st.error("Cannot proceed without valid API keys. Please check your configuration.")
+if not client:
+    st.error("❌ OpenAI API key is required. Please check your .env configuration.")
     st.stop()
+
+# Show NewsAPI status
+if not newsapi:
+    st.warning("⚠️ NewsAPI not configured - external research will be limited. Add NEWS_API_KEY to .env for full functionality.")
 
 # Application Header with Status
 col1, col2 = st.columns([3, 1])
@@ -1279,6 +1301,13 @@ elif st.session_state.current_step == 4:
 elif st.session_state.current_step == 5:
     st.header("Step 5: Schedule & Publish")
     
+    # Check if we just scheduled content - show a refresh button after balloons
+    if st.session_state.get('just_scheduled', False):
+        st.info("🎉 Content scheduled successfully! Click below to refresh and see your updated schedule.")
+        if st.button("🔄 Refresh to View Updated Schedule", type="primary"):
+            st.session_state.just_scheduled = False
+            st.rerun()
+    
     # Add a section to view all scheduled content at the top
     with st.expander("📋 View All Scheduled Content", expanded=False):
         st.subheader("All Scheduled Content")
@@ -1468,7 +1497,8 @@ elif st.session_state.current_step == 5:
                             except Exception:
                                 pass
                             st.info("💡 Expand 'View All Scheduled Content' above to see your complete schedule!")
-                            st.rerun()  # Refresh to show updated content
+                            # Set a flag to show we just scheduled content
+                            st.session_state.just_scheduled = True
                         else:
                             st.error("❌ Failed to schedule content")
                     else:
