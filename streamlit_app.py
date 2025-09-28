@@ -356,7 +356,7 @@ with col2:
     """, unsafe_allow_html=True)
 
 # Enhanced Progress Tracker
-steps = ["Goals & Keywords", "Content Strategy", "Content Generation", "Schedule & Publish"]
+steps = ["Goals & Keywords", "Content Strategy", "Content Generation", "Review & Feedback", "Schedule & Publish"]
 current_step = st.session_state.current_step
 
 st.markdown("### 📈 Progress Overview")
@@ -1184,7 +1184,100 @@ elif st.session_state.current_step == 3:
             st.error(f"Error displaying content: {e}")
 
 elif st.session_state.current_step == 4:
-    st.header("Step 4: Schedule & Publish")
+    st.header("Step 4: Review & Feedback")
+    
+    if not st.session_state.pipeline_result:
+        st.warning("Please generate content in Step 3 first.")
+        st.stop()
+    
+    # Display generated content for review
+    st.subheader("📖 Generated Content Review")
+    
+    variants = st.session_state.pipeline_result.get('variants', [])
+    if variants:
+        # Variant selection
+        variant_options = [f"Variant {i+1}" for i in range(len(variants))]
+        selected_variant_index = st.selectbox(
+            "Choose content variant to review:",
+            range(len(variant_options)),
+            format_func=lambda x: variant_options[x],
+            key="review_variant_selector"
+        )
+        
+        # Update session state
+        st.session_state.selected_variant_index = selected_variant_index
+        
+        # Show selected variant
+        selected_variant = variants[selected_variant_index]
+        
+        # Article review
+        with st.expander("📝 Article Content", expanded=True):
+            article = selected_variant['article']
+            st.markdown(f"**Topic:** {article.get('topic', 'N/A')}")
+            st.markdown(f"**Keywords:** {', '.join(article.get('keywords', []))}")
+            st.markdown(f"**Word Count:** {article.get('word_count', 0)} words")
+            st.markdown("**Content:**")
+            st.write(article.get('content', ''))
+        
+        # Social media posts review
+        with st.expander("📱 Social Media Posts", expanded=True):
+            social_posts = selected_variant.get('social_posts', {})
+            for platform, post in social_posts.items():
+                st.markdown(f"**{platform.title()}:**")
+                st.write(post.get('content', ''))
+                st.markdown("---")
+        
+        # Content calendar review
+        calendar_data = st.session_state.pipeline_result.get('content_calendar', {})
+        if calendar_data and calendar_data.get('calendar'):
+            with st.expander("📅 Content Calendar Preview", expanded=False):
+                st.write(f"📋 **{len(calendar_data['calendar'])} content pieces** planned:")
+                
+                for i, entry in enumerate(calendar_data.get('calendar', []), 1):
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        st.markdown(f"**{i}. {entry['topic']}**")
+                        st.write(f"📝 {entry['description']}")
+                        
+                        if entry.get('keywords'):
+                            keywords_text = ", ".join(entry['keywords'])
+                            st.caption(f"🎯 Keywords: {keywords_text}")
+                    
+                    with col2:
+                        st.markdown(f"**{entry['format']}**")
+                        st.write(f"📍 {entry['platform']}")
+                        st.write(f"👥 {entry['target_audience']}")
+                        if entry.get('estimated_time'):
+                            st.caption(f"⏱️ {entry['estimated_time']}")
+                    
+                    if i < len(calendar_data['calendar']):
+                        st.markdown("---")
+    
+    # Feedback section
+    st.markdown("---")
+    st.subheader("💬 Provide Feedback")
+    
+    feedback_text = st.text_area(
+        "Share your thoughts on the generated content:",
+        value=st.session_state.get('feedback_text', ''),
+        height=150,
+        placeholder="Example: The tone is too formal, make it more conversational. Add more technical details about the product features. Focus more on benefits rather than features.",
+        key="feedback_input"
+    )
+    
+    if st.button("💾 Save Feedback & Continue", type="primary"):
+        st.session_state.feedback_text = feedback_text
+        if feedback_text.strip():
+            # Update memory context with feedback
+            memory_update = f"User feedback: {feedback_text.strip()}"
+            st.session_state.memory_context = (st.session_state.get('memory_context', '') + "\n" + memory_update).strip()
+        
+        st.success("✅ Feedback saved! You can now proceed to scheduling.")
+        st.info("💡 Use the navigation buttons below to go to Step 5 for scheduling, or go back to Step 3 to regenerate content with your feedback.")
+
+elif st.session_state.current_step == 5:
+    st.header("Step 5: Schedule & Publish")
     
     # Add a section to view all scheduled content at the top
     with st.expander("📋 View All Scheduled Content", expanded=False):
