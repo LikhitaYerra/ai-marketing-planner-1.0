@@ -1186,6 +1186,55 @@ elif st.session_state.current_step == 3:
 elif st.session_state.current_step == 4:
     st.header("Step 4: Schedule & Publish")
     
+    # Add a section to view all scheduled content at the top
+    with st.expander("📋 View All Scheduled Content", expanded=False):
+        st.subheader("All Scheduled Content")
+        try:
+            # Always load fresh from file
+            file_path = os.path.abspath('articles_data.json')
+            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                with open(file_path, 'r') as f:
+                    all_scheduled = json.load(f)
+                    st.session_state.scheduled_articles = all_scheduled  # Update session state
+                    
+                if all_scheduled:
+                    st.write(f"📊 **Total scheduled items:** {len(all_scheduled)}")
+                    
+                    # Group by date
+                    from collections import defaultdict
+                    by_date = defaultdict(list)
+                    for item in all_scheduled:
+                        date = item.get('scheduled_date', 'Unknown')
+                        by_date[date].append(item)
+                    
+                    # Display by date
+                    for date in sorted(by_date.keys()):
+                        st.markdown(f"**📅 {date}**")
+                        items = by_date[date]
+                        for item in items:
+                            icon = "📝" if item.get('type') == 'article' else "📱"
+                            platform = item.get('platform', 'website')
+                            preview = (item.get('content', '') or '')[:100] + ('...' if len(item.get('content', '')) > 100 else '')
+                            st.write(f"{icon} {platform.title()}: {preview}")
+                        st.markdown("---")
+                    
+                    # Clear all scheduled content button
+                    if st.button("🗑️ Clear All Scheduled Content", type="secondary"):
+                        try:
+                            with open(file_path, 'w') as f:
+                                json.dump([], f)
+                            st.session_state.scheduled_articles = []
+                            st.success("All scheduled content cleared!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error clearing content: {e}")
+                else:
+                    st.info("No content scheduled yet.")
+            else:
+                st.info("No scheduled content file found.")
+        except Exception as e:
+            st.error(f"Error loading scheduled content: {e}")
+    
     # Show current settings for transparency
     with st.expander("📋 Current Settings for Scheduling", expanded=False):
         st.write("**Goal:** ", st.session_state.user_inputs.get('goal', 'Not set'))
@@ -1315,7 +1364,7 @@ elif st.session_state.current_step == 4:
                             publish_date.strftime('%Y-%m-%d')
                         )
                         if scheduled:
-                            st.success(f"Successfully scheduled {len(scheduled)} content items!")
+                            st.success(f"✅ Successfully scheduled {len(scheduled)} content items for {publish_date}!")
                             st.balloons()
                             # Refresh scheduled articles in session
                             try:
@@ -1325,13 +1374,18 @@ elif st.session_state.current_step == 4:
                                         st.session_state.scheduled_articles = json.load(f)
                             except Exception:
                                 pass
+                            st.info("💡 Expand 'View All Scheduled Content' above to see your complete schedule!")
+                            st.rerun()  # Refresh to show updated content
                         else:
-                            st.error("Failed to schedule content")
+                            st.error("❌ Failed to schedule content")
                     else:
                         st.warning("No content selected for scheduling")
                         
                 except Exception as e:
-                    st.error(f"Error scheduling content: {e}")
+                    st.error(f"❌ Error scheduling content: {e}")
+                    import traceback
+                    with st.expander("🔍 Debug Information", expanded=False):
+                        st.code(traceback.format_exc())
 
         # Show scheduled content list
         st.markdown("---")
