@@ -1,0 +1,11 @@
+openai
+newsapi-python
+langchain-community
+langchain-openai
+streamlit
+pandas
+apscheduler
+requests
+faiss-cpu
+streamlit-oauth
+python-dotenv
