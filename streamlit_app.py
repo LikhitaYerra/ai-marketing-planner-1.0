@@ -410,11 +410,7 @@ with st.sidebar:
             "New Guidelines", 
             placeholder="Enter your content guidelines here..."
         )
-<<<<<<< HEAD
         if st.button("Add Guidelines", key="add_guidelines_btn"):
-=======
-        if st.button("Add Guidelines"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
             if new_guidelines:
                 rag_manager = RAGManager()
                 rag_manager.add_to_knowledge_base(new_guidelines)
@@ -436,19 +432,11 @@ with st.sidebar:
             idx = [f"{e['timestamp']} — {e['length']} chars" for e in existing_entries].index(selected)
             with st.expander("Preview selected entry"):
                 st.text_area("Entry", value=existing_entries[idx]['text'], height=150, disabled=True)
-<<<<<<< HEAD
             if st.button("Re-add selected to KB", key="readd_kb_btn"):
                 rag_manager = RAGManager()
                 rag_manager.add_to_knowledge_base(existing_entries[idx]['text'])
                 st.success("Re-added to knowledge base.")
             if st.button("Clear KB log", key="clear_kb_log_btn"):
-=======
-            if st.button("Re-add selected to KB"):
-                rag_manager = RAGManager()
-                rag_manager.add_to_knowledge_base(existing_entries[idx]['text'])
-                st.success("Re-added to knowledge base.")
-            if st.button("Clear KB log"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                 if clear_guidelines_log():
                     st.success("Cleared KB log entries.")
                     st.rerun()
@@ -649,11 +637,7 @@ elif st.session_state.current_step == 2:
                     height=150,
                     disabled=True
                 )
-<<<<<<< HEAD
                 if st.button("🗑️ Clear SEO Report", key="clear_seo_report_btn"):
-=======
-                if st.button("🗑️ Clear SEO Report"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                     st.session_state.user_inputs['seo_report'] = ''
                     st.rerun()
         else:
@@ -720,11 +704,7 @@ elif st.session_state.current_step == 2:
                 index=len(prior_reports)-1
             )
             rep_idx = [f"{r['timestamp']} — {r['length']} chars" for r in prior_reports].index(choice)
-<<<<<<< HEAD
             if st.button("Load selected report", key="load_seo_report_btn"):
-=======
-            if st.button("Load selected report"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                 st.session_state.user_inputs['seo_report'] = prior_reports[rep_idx]['text']
                 st.success("Report loaded.")
                 st.rerun()
@@ -777,11 +757,7 @@ elif st.session_state.current_step == 3:
         st.write("**Word Count:** ", st.session_state.get('word_count', 800))
         st.write("**Feedback:** ", st.session_state.get('feedback_text', 'None'))
     
-<<<<<<< HEAD
     # Regenerate only when explicitly needed (not on navigation)
-=======
-    # Regenerate when inputs change
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
     inputs_signature = (
         st.session_state.user_inputs.get('goal', ''),
         st.session_state.user_inputs.get('keywords', ''),
@@ -802,7 +778,6 @@ elif st.session_state.current_step == 3:
     )
     last_signature = st.session_state.get('last_generation_signature')
 
-<<<<<<< HEAD
     # Only regenerate if there's no result OR if explicitly requested via force_regenerate flag
     needs_generation = (
         st.session_state.pipeline_result is None or 
@@ -813,11 +788,6 @@ elif st.session_state.current_step == 3:
     # Clear force_regenerate flag after checking
     if st.session_state.get('force_regenerate', False):
         st.session_state.force_regenerate = False
-=======
-    needs_generation = (
-        st.session_state.pipeline_result is None or last_signature != inputs_signature
-    )
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
 
     if needs_generation:
         # Validate required inputs first
@@ -1012,7 +982,6 @@ elif st.session_state.current_step == 3:
                 st.markdown("**3. Quick Actions**")
                 action_col1, action_col2, action_col3 = st.columns(3)
                 with action_col1:
-<<<<<<< HEAD
                     if st.button("🔄 Retry Generation", key="retry_gen_btn"):
                         st.session_state.force_regenerate = True
                         st.rerun()
@@ -1022,24 +991,12 @@ elif st.session_state.current_step == 3:
                         st.rerun()
                 with action_col3:
                     if st.button("📋 Check Settings", key="check_settings_btn"):
-=======
-                    if st.button("🔄 Retry Generation"):
-                        st.session_state.pipeline_result = None
-                        st.rerun()
-                with action_col2:
-                    if st.button("⬅️ Go to Step 1"):
-                        st.session_state.current_step = 1
-                        st.rerun()
-                with action_col3:
-                    if st.button("📋 Check Settings"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                         st.info("Check your .env file and sidebar settings")
     else:
         st.info("🔄 Content will be generated automatically...")
 
     # Content display tabs
     if st.session_state.pipeline_result:
-<<<<<<< HEAD
         # Add manual regenerate button
         st.markdown("---")
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -1050,8 +1007,6 @@ elif st.session_state.current_step == 3:
         st.caption("💡 Tip: Use this button if you've changed settings in the sidebar and want to regenerate content.")
         st.markdown("---")
         
-=======
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
         try:
             tabs = st.tabs(["📄 Article Variants", "📱 Social Posts", "📰 News Insights", "✍️ Feedback", "📅 Calendar"])
             
@@ -1111,7 +1066,6 @@ elif st.session_state.current_step == 3:
                             key="selected_article_content"
                         )
                         
-<<<<<<< HEAD
                         # Copy button with JavaScript clipboard functionality
                         article_content = chosen_variant['article']['content']
                         # Escape content for JavaScript
@@ -1155,12 +1109,6 @@ elif st.session_state.current_step == 3:
                         
                         import streamlit.components.v1 as components
                         components.html(copy_button_html, height=60)
-=======
-                        # Copy button (using Streamlit's built-in functionality)
-                        if st.button("📋 Copy to Clipboard", key="copy_article"):
-                            st.code(chosen_variant['article']['content'], language=None)
-                            st.success("Content copied! Use Ctrl+A, Ctrl+C to copy from the code block above.")
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
         
             with tabs[1]:
                 st.subheader("📱 Social Media Posts for Selected Variant")
@@ -1209,7 +1157,6 @@ elif st.session_state.current_step == 3:
                                     label_visibility="collapsed"
                                 )
                                 
-<<<<<<< HEAD
                                 # Copy button for each post with JavaScript
                                 post_content = post['content']
                                 escaped_post_content = post_content.replace('\\', '\\\\').replace('`', '\\`').replace('$', '\\$').replace('\n', '\\n').replace('\r', '\\r').replace('"', '\\"')
@@ -1252,12 +1199,6 @@ elif st.session_state.current_step == 3:
                                 
                                 import streamlit.components.v1 as components
                                 components.html(copy_post_button_html, height=50)
-=======
-                                # Copy button for each post
-                                if st.button(f"📋 Copy {platform.title()} Post", key=f"copy_{platform}"):
-                                    st.code(post['content'], language=None)
-                                    st.success(f"{platform.title()} post copied!")
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                                 
                                 st.markdown('</div>', unsafe_allow_html=True)
                 else:
@@ -1320,15 +1261,9 @@ elif st.session_state.current_step == 3:
                 st.subheader("Feedback")
                 st.info("Provide suggestions to refine the article and posts. We'll regenerate with your feedback.")
                 feedback_text = st.text_area("Your suggestions", value=st.session_state.get('feedback_text', ''), height=150)
-<<<<<<< HEAD
                 if st.button("🔄 Regenerate with Feedback", key="regenerate_feedback_btn", type="primary"):
                     st.session_state.feedback_text = feedback_text
                     st.session_state.force_regenerate = True
-=======
-                if st.button("Regenerate with Feedback"):
-                    st.session_state.feedback_text = feedback_text
-                    st.session_state.pipeline_result = None
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                     st.rerun()
             
             with tabs[4]:
@@ -1447,11 +1382,7 @@ elif st.session_state.current_step == 4:
         key="feedback_input"
     )
     
-<<<<<<< HEAD
     if st.button("💾 Save Feedback & Continue", key="save_feedback_btn", type="primary"):
-=======
-    if st.button("💾 Save Feedback & Continue", type="primary"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
         st.session_state.feedback_text = feedback_text
         if feedback_text.strip():
             # Update memory context with feedback
@@ -1467,11 +1398,7 @@ elif st.session_state.current_step == 5:
     # Check if we just scheduled content - show a refresh button after balloons
     if st.session_state.get('just_scheduled', False):
         st.info("🎉 Content scheduled successfully! Click below to refresh and see your updated schedule.")
-<<<<<<< HEAD
         if st.button("🔄 Refresh to View Updated Schedule", key="refresh_schedule_btn", type="primary"):
-=======
-        if st.button("🔄 Refresh to View Updated Schedule", type="primary"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
             st.session_state.just_scheduled = False
             st.rerun()
     
@@ -1508,11 +1435,7 @@ elif st.session_state.current_step == 5:
                         st.markdown("---")
                     
                     # Clear all scheduled content button
-<<<<<<< HEAD
                     if st.button("🗑️ Clear All Scheduled Content", key="clear_all_scheduled_btn", type="secondary"):
-=======
-                    if st.button("🗑️ Clear All Scheduled Content", type="secondary"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
                         try:
                             with open(file_path, 'w') as f:
                                 json.dump([], f)
@@ -1546,27 +1469,8 @@ elif st.session_state.current_step == 5:
             if variants:
                 st.write("**Variants Available:** ", len(variants))
     
-<<<<<<< HEAD
     # Only generate if no content exists (don't auto-regenerate on navigation)
     if st.session_state.pipeline_result is None:
-=======
-    # Ensure latest generation is used even when user jumps here
-    inputs_signature = (
-        st.session_state.user_inputs.get('goal', ''),
-        st.session_state.user_inputs.get('keywords', ''),
-        st.session_state.user_inputs.get('seo_report', ''),
-        st.session_state.get('content_language', 'English'),
-        st.session_state.get('content_tone', 'Professional'),
-        st.session_state.get('word_count', 800),
-        st.session_state.get('feedback_text', ''),
-        tuple(st.session_state.user_inputs.get('selected_topics', []) or []),
-        st.session_state.get('research_source', 'newsapi'),
-        st.session_state.get('require_citations', False),
-        st.session_state.get('strict_grounding', False),
-    )
-    last_signature = st.session_state.get('last_generation_signature')
-    if st.session_state.pipeline_result is None or last_signature != inputs_signature:
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
         # Validate required inputs
         goal = st.session_state.user_inputs.get('goal', '')
         keywords = st.session_state.user_inputs.get('keywords', '')
@@ -1707,37 +1611,22 @@ elif st.session_state.current_step == 5:
             st.info("No content scheduled yet.")
 
 # Navigation Buttons
-<<<<<<< HEAD
 st.markdown("---")
 st.markdown("### 🧭 Navigation")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col1:
     if st.session_state.current_step > 1:
         if st.button("← Previous Step", key="nav_prev_button", type="secondary", use_container_width=True):
-=======
-col1, col2, col3 = st.columns([1, 2, 1])
-with col1:
-    if st.session_state.current_step > 1:
-        if st.button("← Previous Step"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
             st.session_state.current_step -= 1
             st.rerun()
 with col3:
     # Only show Next Step button for steps that don't have form-based navigation
     if st.session_state.current_step < len(steps) and st.session_state.current_step not in [1, 2]:
-<<<<<<< HEAD
         if st.button("Next Step →", key="nav_next_button", type="primary", use_container_width=True):
-=======
-        if st.button("Next Step →"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
             st.session_state.current_step += 1
             st.rerun()
     elif st.session_state.current_step == 2:
         # Step 2 has its own form navigation, but add a manual next button for convenience
-<<<<<<< HEAD
         if st.button("Skip to Content Generation →", key="nav_skip_button", type="primary", use_container_width=True):
-=======
-        if st.button("Skip to Content Generation →"):
->>>>>>> 2fa1e79ec3cd8595a6404fc02d862db5dc975aef
             st.session_state.current_step = 3
             st.rerun()
